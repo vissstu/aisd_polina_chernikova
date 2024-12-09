@@ -13,7 +13,7 @@ void create_a_polyline(Polyline<double>& Polygon, int N) {
 
 int main()
 {
-    size_t numPoints;
+    /*size_t numPoints;
     int m1 = 0, m2 = 0;
     cout << "Enter the number of points for the first polyline(int): ";
     cin >> numPoints;
@@ -39,7 +39,7 @@ int main()
     cout << "\nThe length of the second polyline(int): " << line2.length() << std::endl;
     cout << std::endl;
 
-    Polyline<int> line(line1.size() + line2.size(),m1,m2);
+    Polyline<int> line(line1.size() + line2.size());
     line = line1 + line2;
     cout << line;
     cout << "\nThe sum of the length of the polyline(int): " << line.length() << std::endl;
@@ -68,14 +68,18 @@ int main()
     Point<std::complex<double>>xy2(x2, y2);
     complex = complex + xy1;
     complex = complex + xy2;
-    cout << complex << endl;
+    cout << complex;
     cout << "\nThe length of the second polyline(int): " << complex.length() << std::endl;
     cout << "-----------------------------------" << endl;
+    */
 
-    // Создание правильного N-угольника 
-    int N = 5;
+    int N = 2;
     Polyline<double> Polygon(N);
-    create_a_polyline(Polygon, N);
+    Point<double> a(1, 3);
+    Point<double> b(3, 3);
+    Polygon = Polygon + a;
+    Polygon = b + Polygon;
+    cout << Polygon;
     cout << "The length of the correct " << N << "-square: " << Polygon.length() << endl;
 
     return 0;

@@ -24,6 +24,10 @@ struct Point
         return *this;
     }
 
+    bool operator==(const Point<T>& other) const {
+        return x == other.x && y == other.y;
+    }
+
 };
 
 template<typename T>
@@ -31,8 +35,8 @@ class Polyline
 {
 private:
     Point<T>* vertexs; // ћассив вершин 
-    std::size_t number_of_vertexs; //  оличество вершин 
-    std::size_t max_number_vertexs; // ћаксимальна€ емкость массива вершин 
+    size_t number_of_vertexs; //  оличество вершин 
+    size_t max_number_vertexs; // ћаксимальна€ емкость массива вершин 
 
     // ћетод дл€ изменени€ размера массива вершин
     void resize()
@@ -60,7 +64,7 @@ public:
         max_number_vertexs = 1;
     }
 
-    //  онструктор с параметром: количество точек
+    //  онструктор с параметрами (создает ломаную из точек, координаты каждой из которых лежат в диапазоне [m1, m2])
     Polyline(const size_t n, T m1, T m2) : number_of_vertexs(n), max_number_vertexs(n) {
         vertexs = new Point<T>[max_number_vertexs];
         std::random_device rd;
@@ -88,9 +92,10 @@ public:
         }
     }
 
-    //  онструктор с параметрами (создает ломаную из точек, координаты каждой из которых лежат в диапазоне [m1, m2])
-    Polyline(size_t n) : number_of_vertexs(n), max_number_vertexs(n) {
+    //  онструктор с параметром: количество точек
+    Polyline(size_t n) : number_of_vertexs(0), max_number_vertexs(n) {
         vertexs = new Point<T>[max_number_vertexs];
+        //number_of_vertexs = n;
     }
 
     //  онструктор копировани€
@@ -106,17 +111,13 @@ public:
     // ќператор присваивани€
     Polyline& operator=(const Polyline& other)
     {
-        if (this != &other)
-        {
+        if (this != &other) {
             delete[] vertexs;
-            vertexs = new Point<T>[other.max_number_vertexs];
             max_number_vertexs = other.max_number_vertexs;
-            number_of_vertexs = other.number_of_vertexs;
-            for (std::size_t i = 0; i < number_of_vertexs; ++i)
-            {
-                if (number_of_vertexs <= max_number_vertexs) {
-                    vertexs[i] = other.vertexs[i];
-                }
+            vertexs = new Point<T>[max_number_vertexs];
+            number_of_vertexs = other.max_number_vertexs;
+            for (std::size_t i = 0; i < number_of_vertexs; ++i) {
+                vertexs[i] = other.vertexs[i];
             }
         }
         return *this;
@@ -127,7 +128,6 @@ public:
     {
         delete[] vertexs;
     }
-
 
     // ќператор [] дл€ чтени€/записи вершины ломаной по еЄ индексу
     Point<T>& operator[](std::size_t index)
@@ -150,7 +150,7 @@ public:
         vertexs[number_of_vertexs++] = point;
     }
 
-    // ћетод дл€ получени€ текущего числа вершин
+    //ѕолучение размеров
     size_t size() const
     {
         return number_of_vertexs;
@@ -178,19 +178,38 @@ public:
 
     // ќператор сложени€ ломаной и вершины (добавление вершины в конец ломаной)
     friend Polyline operator+(const Polyline& line, const Point<T>& vertex) {
-        Polyline result(line);
-        result.addVertex(vertex);
+        Polyline result(line.number_of_vertexs + 1);
+        for (size_t i = 0; i < line.number_of_vertexs; ++i) {
+            result.vertexs[i] = line.vertexs[i];
+        }
+        result.vertexs[line.number_of_vertexs] = vertex;
+        result.number_of_vertexs = line.number_of_vertexs + 1;
+
         return result;
     }
 
     // ќператор сложени€ вершины и ломаной (вставка вершины в начало ломаной)
     friend Polyline operator+(const Point<T>& vertex, const Polyline& line) {
-        Polyline result(line.size() + 1);
-        result[0] = vertex;
-        for (std::size_t i = 0; i < line.size(); ++i) {
-            result[i + 1] = line[i];
+        Polyline result(line.number_of_vertexs + 1);
+        result.vertexs[0] = vertex;
+        for (std::size_t i = 0; i < line.number_of_vertexs; ++i) {
+            result.vertexs[i + 1] = line.vertexs[i];
         }
+        result.number_of_vertexs = line.number_of_vertexs + 1;
         return result;
+    }
+
+
+    bool operator==(const Polyline& other) const {
+        if (number_of_vertexs != other.number_of_vertexs) {
+            return false;
+        }
+        for (size_t i = 0; i < number_of_vertexs; ++i) {
+            if (!(vertexs[i] == other.vertexs[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // ¬ычисление рассто€ни€
@@ -207,6 +226,7 @@ public:
         return abs(p2 - p1);
     }
 
+    // ¬ычисление длины
     T length() const
     {
 
